@@ -5,16 +5,12 @@ class Util {
 
   Util(this.context);
 
-  void showSnackBar(String message) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      backgroundColor: Colors.blue,
-      content: Text(
-        message,
-        textAlign: TextAlign.center,
+  void showFlutterToast(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
       ),
-      duration: Duration(
-          seconds: 1,
-          milliseconds: 100),
-    ));
+    );
   }
+
 }
