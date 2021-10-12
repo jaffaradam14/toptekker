@@ -11,6 +11,7 @@ import 'package:toptekker/retrofit/data/login_data_model.dart';
 import 'package:toptekker/retrofit/data/special_timings_data.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:toptekker/retrofit/model/ActiveModel/active_model.dart';
 import 'package:toptekker/retrofit/provider/user_provider.dart';
 import 'package:toptekker/screens/time_slot_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -55,6 +56,8 @@ class AcademyDetailsScreenPageState extends State {
   final List<SpecialTimingsData> special_timings_data = [];
   final shared_data = GetStorage();
   List storageList = [];
+  late ActiveModels activeModels;
+
   AcademyDetailsScreenPageState(this.academyModel) {
     print("academy_model" + academyModel.bus_title);
   }
@@ -69,7 +72,7 @@ class AcademyDetailsScreenPageState extends State {
   @override
   void initState() {
     super.initState();
-
+    activeModels = new ActiveModels(context);
     loadPhotos();
 
     _markers.add(Marker(

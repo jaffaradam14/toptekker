@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
+
 class AcademyModel {
+
   final String bus_id;
   final String user_id;
   final String bus_title;
@@ -27,6 +30,7 @@ class AcademyModel {
   final String total_rating;
   final String review_count;
   final String fcm_topic;
+
 
   AcademyModel(this.bus_id,
       this.user_id,
