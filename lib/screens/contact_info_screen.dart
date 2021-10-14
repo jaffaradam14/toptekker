@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:toptekker/screens/payment_details_screen.dart';
 
 import '../AppColors.dart';
+
+Future<void> main() async {
+  await GetStorage.init();
+  runApp(ContactInfoScreen());
+}
 
 class ContactInfoScreen extends StatelessWidget {
   @override
@@ -29,6 +35,27 @@ class ContactInfoScreenPageState extends State {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
 
+  final shared_data = GetStorage();
+  var username;
+  var phonenumber;
+
+  @override
+  void initState() {
+    super.initState();
+
+    username = shared_data.read("user_name");
+    phonenumber = shared_data.read("user_phone");
+
+    if(username != null){
+      nameController.text = username;
+    }
+
+    if(phonenumber != null){
+      phoneController.text = phonenumber;
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +75,7 @@ class ContactInfoScreenPageState extends State {
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(10),
                 ],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.text,
                 controller: nameController,
                 decoration: InputDecoration(
                   border: UnderlineInputBorder(),

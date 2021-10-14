@@ -16,4 +16,5 @@ class Apis {
   static const String get_time_slot = apis + '/get_time_slot';
   static const String my_appointments = apis + '/my_appointments';
   static const String get_user_notifications = apis + '/get_user_notifications';
+  static const String get_sports = apis + '/get_sports';
 }

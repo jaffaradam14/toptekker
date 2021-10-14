@@ -6,19 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:toptekker/retrofit/Apis.dart';
+import 'package:toptekker/retrofit/data/academy_data.dart';
 import 'package:toptekker/retrofit/data/business_photos_response_model_data.dart';
+import 'package:toptekker/retrofit/data/get_sports_response_data_model.dart';
 import 'package:toptekker/retrofit/data/login_data_model.dart';
 import 'package:toptekker/retrofit/data/special_timings_data.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:toptekker/retrofit/model/ActiveModel/active_model.dart';
-import 'package:toptekker/retrofit/provider/user_provider.dart';
 import 'package:toptekker/screens/time_slot_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../AppColors.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 
 Future<void> main() async {
   await GetStorage.init();
@@ -39,28 +39,25 @@ class AcademyDetailsScreen extends StatelessWidget {
 }
 
 class AcademyDetailsScreenPage extends StatefulWidget {
-  final AcademyModel academyModel;
+  final BusinessModel academyModel;
 
   AcademyDetailsScreenPage({Key? key, required this.academyModel})
       : super(key: key);
 
   @override
   AcademyDetailsScreenPageState createState() {
-    return new AcademyDetailsScreenPageState(academyModel);
+    return new AcademyDetailsScreenPageState();
   }
 }
 
 class AcademyDetailsScreenPageState extends State {
-  final AcademyModel academyModel;
+  late final BusinessModel academyModel;
   final List<BusinessPhotosData> photo_details = [];
+  final List<GetSportsResponseModel> get_sports_details_model = [];
   final List<SpecialTimingsData> special_timings_data = [];
   final shared_data = GetStorage();
   List storageList = [];
-  late ActiveModels activeModels;
-
-  AcademyDetailsScreenPageState(this.academyModel) {
-    print("academy_model" + academyModel.bus_title);
-  }
+  List<AcademyData> academy_details = [];
 
   Completer<GoogleMapController> _controller = Completer();
   final Set<Marker> _markers = {};
@@ -72,8 +69,11 @@ class AcademyDetailsScreenPageState extends State {
   @override
   void initState() {
     super.initState();
-    activeModels = new ActiveModels(context);
+    academyModel = ActiveModels.businessModel!;
+    print("academyModel---->" + academyModel.bus_google_street);
+
     loadPhotos();
+    getSports();
 
     _markers.add(Marker(
         markerId: MarkerId('SomeId'),
@@ -81,11 +81,7 @@ class AcademyDetailsScreenPageState extends State {
             double.parse(academyModel.bus_longitude)),
         infoWindow: InfoWindow(title: 'The title of the marker')));
 
-    storageList = shared_data.read('business_model');
-    final map = storageList[0];
-
-    print("storage_list"+storageList.length.toString());
-
+    print("storage_list" + storageList.length.toString());
   }
 
   @override
@@ -96,234 +92,240 @@ class AcademyDetailsScreenPageState extends State {
         centerTitle: false,
         title: Text('TopTekker'),
       ),
-      body: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(6.0),
-        children: [
-          Container(
-            height: 200,
-            child: photo_details[0].photo_image == null
-                ? null
-                : Image.network(
-                    Apis.base_url +
-                        "/uploads/business/businessphoto/" +
-                        photo_details[0].photo_image,
-                  ),
-            /*child: ListView.builder(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 200,
+              child: photo_details[0].photo_image == null
+                  ? null
+                  : Image.network(
+                      Apis.base_url +
+                          "/uploads/business/businessphoto/" +
+                          photo_details[0].photo_image,
+                    ),
+              /*child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: this.photo_details.length,
               itemBuilder: _listViewItemBuilder,
             ),*/
-          ),
-          Container(
-            height: 50,
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-            child: RaisedButton(
-              textColor: Colors.white,
-              color: Color(0XFF2E7D32),
-              child: Text('View Membership Plan'),
-              onPressed: () {},
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                child: Row(
-                  children: [
-                    new Padding(
-                      padding: new EdgeInsets.all(10.0),
-                      child: new Text(
-                        'TIME        ' +
-                            academyModel.start_time +
-                            " to " +
-                            academyModel.end_time,
-                        style: new TextStyle(fontSize: 15.0),
+            Container(
+              height: 50,
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              child: RaisedButton(
+                textColor: Colors.white,
+                color: Color(0XFF2E7D32),
+                child: Text('View Membership Plan'),
+                onPressed: () {},
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  child: Row(
+                    children: [
+                      new Padding(
+                        padding: new EdgeInsets.all(10.0),
+                        child: new Text(
+                          'TIME        ' +
+                              academyModel.start_time +
+                              " to " +
+                              academyModel.end_time,
+                          style: new TextStyle(fontSize: 15.0),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
+                    ],
+                  ),
+                )),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              alignment: Alignment.topLeft,
               padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                semanticContainer: true,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
+              child: SizedBox(
+                height: 50,
                 child: Column(
                   children: [
-                    Padding(
-                      padding: new EdgeInsets.all(10.0),
+                    Container(
                       child: new Text(
                         'SPORTS ',
+                        textAlign: TextAlign.left,
                         style: new TextStyle(fontSize: 15.0),
                       ),
                     ),
-                    Padding(
-                      padding: new EdgeInsets.all(10.0),
-                      child: new Text(
-                        'SPORTS ',
-                        style: new TextStyle(fontSize: 15.0),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        "Phone",
-                        style: new TextStyle(
-                            fontSize: 15.0,
-                            color: AppColors.PRIMARY_COLOR,
-                            fontFamily: 'georgia'),
-                      ),
-                      subtitle: Text(
-                        academyModel.bus_contact,
-                        style:
-                            new TextStyle(fontSize: 15.0, color: Colors.black),
-                      ),
-                      trailing: Wrap(
-                        spacing: 12, // space between two icons
-                        children: <Widget>[
-                          new IconButton(
-                            onPressed: () {
-                              makingPhoneCall(academyModel.bus_contact);
-                            },
-                            icon: Icon(
-                              Icons.add_ic_call_rounded,
-                              color: AppColors.PRIMARY_COLOR,
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              )),
-          Container(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        "Email",
-                        style: new TextStyle(
-                            fontSize: 15.0,
-                            color: AppColors.PRIMARY_COLOR,
-                            fontFamily: 'georgia'),
-                      ),
-                      subtitle: Text(
-                        academyModel.bus_email,
-                        style:
-                            new TextStyle(fontSize: 15.0, color: Colors.black),
-                      ),
-                      trailing: Wrap(
-                        spacing: 12, // space between two icons
-                        children: <Widget>[
-                          Icon(
-                            Icons.email,
-                            color: AppColors.PRIMARY_COLOR,
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              )),
-          Container(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        "Facilities",
-                        style: new TextStyle(
-                            fontSize: 15.0,
-                            color: AppColors.PRIMARY_COLOR,
-                            fontFamily: 'georgia'),
-                      ),
-                      subtitle: Text(
-                        academyModel.facilities,
-                        style:
-                            new TextStyle(fontSize: 15.0, color: Colors.black),
-                      ),
-                    )
-                  ],
-                ),
-              )),
-          Container(
-              height: 300,
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: SingleChildScrollView(
-                  child: Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        "Location",
-                        style: new TextStyle(
-                            fontSize: 15.0,
-                            color: AppColors.PRIMARY_COLOR,
-                            fontFamily: 'georgia'),
-                      ),
-                      subtitle: Text(
-                        academyModel.bus_google_street,
-                        style:
-                            new TextStyle(fontSize: 15.0, color: Colors.black),
-                      ),
+                    SizedBox(
+                      height: 10,
                     ),
                     Container(
-                        height: 200,
-                        child: GoogleMap(
-                          onMapCreated: _onMapCreated,
-                          initialCameraPosition: CameraPosition(
-                            target: LatLng(
-                                double.parse(academyModel.bus_latitude),
-                                double.parse(academyModel.bus_longitude)),
-                            zoom: 10,
-                          ),
-                          markers: _markers,
-                        ))
+                        child: Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.only(left: 10),
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      itemCount: this.get_sports_details_model.length,
+                      itemBuilder: _listViewImageItemBuilder,
+                    ))),
                   ],
                 ),
-              ))),
-          Container(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                        "Additional Info",
-                        style: new TextStyle(
-                            fontSize: 15.0,
-                            color: AppColors.PRIMARY_COLOR,
-                            fontFamily: 'georgia'),
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "Phone",
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: AppColors.PRIMARY_COLOR,
+                              fontFamily: 'georgia'),
+                        ),
+                        subtitle: Text(
+                          academyModel.bus_contact,
+                          style: new TextStyle(
+                              fontSize: 15.0, color: Colors.black),
+                        ),
+                        trailing: Wrap(
+                          spacing: 12, // space between two icons
+                          children: <Widget>[
+                            new IconButton(
+                              onPressed: () {
+                                makingPhoneCall(academyModel.bus_contact);
+                              },
+                              icon: Icon(
+                                Icons.add_ic_call_rounded,
+                                color: AppColors.PRIMARY_COLOR,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "Email",
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: AppColors.PRIMARY_COLOR,
+                              fontFamily: 'georgia'),
+                        ),
+                        subtitle: Text(
+                          academyModel.bus_email,
+                          style: new TextStyle(
+                              fontSize: 15.0, color: Colors.black),
+                        ),
+                        trailing: Wrap(
+                          spacing: 12, // space between two icons
+                          children: <Widget>[
+                            Icon(
+                              Icons.email,
+                              color: AppColors.PRIMARY_COLOR,
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "Facilities",
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: AppColors.PRIMARY_COLOR,
+                              fontFamily: 'georgia'),
+                        ),
+                        subtitle: Text(
+                          academyModel.facilities,
+                          style: new TextStyle(
+                              fontSize: 15.0, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+            Container(
+                height: 300,
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: SingleChildScrollView(
+                    child: Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "Location",
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: AppColors.PRIMARY_COLOR,
+                              fontFamily: 'georgia'),
+                        ),
+                        subtitle: Text(
+                          academyModel.bus_google_street,
+                          style: new TextStyle(
+                              fontSize: 15.0, color: Colors.black),
+                        ),
                       ),
-                      subtitle: Text(
-                        academyModel.bus_description,
-                        style:
-                            new TextStyle(fontSize: 15.0, color: Colors.black),
-                      ),
-                    )
-                  ],
-                ),
-              )),
-        ],
+                      Container(
+                          height: 200,
+                          child: GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: LatLng(
+                                  double.parse(academyModel.bus_latitude),
+                                  double.parse(academyModel.bus_longitude)),
+                              zoom: 10,
+                            ),
+                            markers: _markers,
+                          ))
+                    ],
+                  ),
+                ))),
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: Card(
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                          "Additional Info",
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: AppColors.PRIMARY_COLOR,
+                              fontFamily: 'georgia'),
+                        ),
+                        subtitle: Text(
+                          academyModel.bus_description,
+                          style: new TextStyle(
+                              fontSize: 15.0, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.PRIMARY_COLOR,
@@ -331,6 +333,34 @@ class AcademyDetailsScreenPageState extends State {
         child: const Text('Book'),
       ),
     );
+  }
+
+  Widget _listViewImageItemBuilder(BuildContext context, int index) {
+    var newsDetail = this.get_sports_details_model[index];
+    return InkWell(
+        child: Container(
+            child: Container(
+      child: Expanded(
+        child: Row(
+          children: [
+            SizedBox(
+              width: 10,
+            ),
+            Container(
+              child: newsDetail.image == null
+                  ? null
+                  : Image.network(
+                      Apis.base_url +
+                          "/uploads/admin/category/" +
+                          newsDetail.image,
+                      fit: BoxFit.fitHeight,
+                    ),
+              height: 50,
+            ),
+          ],
+        ),
+      ),
+    )));
   }
 
   Widget _listViewItemBuilder(BuildContext context, int index) {
@@ -380,6 +410,40 @@ class AcademyDetailsScreenPageState extends State {
     }
   }
 
+  Future<void> getSports() async {
+    var urls = Apis.get_sports;
+    Map data = {
+      'bus_id': academyModel.bus_id,
+    };
+    var response = await http.post(Uri.parse(urls),
+        headers: <String, String>{}, body: data);
+    if (response.statusCode == 200) {
+      var get_sports_response = response.body;
+      print("get_sports_response" + get_sports_response);
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      if (responseData['data'] != null) {
+        responseData['data'].forEach((get_sports_details) {
+          final GetSportsResponseModel getSportsResponseModel =
+              new GetSportsResponseModel(
+                  get_sports_details['id'],
+                  get_sports_details['bus_id'],
+                  get_sports_details['category_id'],
+                  get_sports_details['title'],
+                  get_sports_details['slug'],
+                  get_sports_details['parent'],
+                  get_sports_details['leval'],
+                  get_sports_details['description'],
+                  get_sports_details['image'],
+                  get_sports_details['status']);
+          setState(() {
+            get_sports_details_model.add(getSportsResponseModel);
+          });
+        });
+      }
+    }
+  }
+
   makingPhoneCall(String contact) async {
     String call_number = 'tel:' + contact;
     var url = call_number;
@@ -391,7 +455,6 @@ class AcademyDetailsScreenPageState extends State {
   }
 
   Future<void> getBookingAlert() async {
-
     var urls = Apis.get_user_subscriptions_and_special_timings;
     Map data = {
       'user_id': shared_data.read("user_id"),
@@ -448,107 +511,112 @@ class AcademyDetailsScreenPageState extends State {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Special Timings',textAlign: TextAlign.center,style: TextStyle(fontWeight: FontWeight.bold),),
-          content:Container(
-            height: 420,
-              child: Column(
-                  children:[
-                    Container(
-                      height: 300.0, // Change as per your requirement
-                      width: 300.0, // Change as per your requirement
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        itemCount: this.special_timings_data.length,
-                        itemBuilder: _listViewSpecialItemBuilder,
-                        separatorBuilder: (BuildContext context, int index) {
-                          return SizedBox(
-                            height: 10,
-                          );
-                        },
-                      ),
-                    ),
-                    Container(
-                        alignment: Alignment.center,
-                        child:Text('OR',
-                          style: TextStyle(color: Colors.black,
-                              fontSize: 16.0,fontWeight: FontWeight.bold),
-                        )
-                    ),
-                    SizedBox(height: 10,),
-                    Container(
-                      height: 50,
-                      width: double.infinity,
-                      child: FlatButton(
-                        textColor: Colors.white,
-                        color: AppColors.PRIMARY_COLOR,
-                        child: Text('Continue to normal booking'),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          gotoTimeSlotPage();
-                        },
-                      ),
-                    )
-                  ]
-              )
-          ), //setupAlertDialoadContainer(special_timings_data),
+          title: Text(
+            'Special Timings',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Container(
+              height: 420,
+              child: Column(children: [
+                Container(
+                  height: 300.0, // Change as per your requirement
+                  width: 300.0, // Change as per your requirement
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: this.special_timings_data.length,
+                    itemBuilder: _listViewSpecialItemBuilder,
+                    separatorBuilder: (BuildContext context, int index) {
+                      return SizedBox(
+                        height: 10,
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
+                    )),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  height: 50,
+                  width: double.infinity,
+                  child: FlatButton(
+                    textColor: Colors.white,
+                    color: AppColors.PRIMARY_COLOR,
+                    child: Text('Continue to normal booking'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      gotoTimeSlotPage();
+                    },
+                  ),
+                )
+              ])), //setupAlertDialoadContainer(special_timings_data),
         );
       },
     );
   }
 
   setupAlertDialoadContainer(List<SpecialTimingsData> special_timings_data) {
-    return Column(
-      children:[
-        Container(
-          height: 300.0, // Change as per your requirement
-          width: 300.0, // Change as per your requirement
-          child: ListView.separated(
-            shrinkWrap: true,
-            itemCount: this.special_timings_data.length,
-            itemBuilder: _listViewSpecialItemBuilder,
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(
-                height: 10,
-              );
-            },
-          ),
+    return Column(children: [
+      Container(
+        height: 300.0, // Change as per your requirement
+        width: 300.0, // Change as per your requirement
+        child: ListView.separated(
+          shrinkWrap: true,
+          itemCount: this.special_timings_data.length,
+          itemBuilder: _listViewSpecialItemBuilder,
+          separatorBuilder: (BuildContext context, int index) {
+            return SizedBox(
+              height: 10,
+            );
+          },
         ),
-        Container(
-            alignment: Alignment.center,
-            child:Text('OR',
-              style: TextStyle(color: Colors.black,
-                  fontSize: 16.0,fontWeight: FontWeight.bold),
-            )
+      ),
+      Container(
+          alignment: Alignment.center,
+          child: Text(
+            'OR',
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold),
+          )),
+      SizedBox(
+        height: 10,
+      ),
+      Container(
+        height: 50,
+        width: double.infinity,
+        child: RaisedButton(
+          textColor: Colors.white,
+          color: AppColors.PRIMARY_COLOR,
+          child: Text('Continue to normal booking'),
+          onPressed: () {
+            Navigator.of(context).pop();
+            gotoTimeSlotPage();
+          },
         ),
-        SizedBox(height: 10,),
-        Container(
-          height: 50,
-          width: double.infinity,
-          child: RaisedButton(
-            textColor: Colors.white,
-            color: AppColors.PRIMARY_COLOR,
-            child: Text('Continue to normal booking'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              gotoTimeSlotPage();
-            },
-          ),
-        )
-      ]
-    ) ;
-
+      )
+    ]);
   }
 
   Widget _listViewSpecialItemBuilder(BuildContext context, int index) {
     var newsDetail = this.special_timings_data[index];
     return ClipRect(
         child: ListTile(
-          tileColor: AppColors.PRIMARY_COLOR,
-          dense:true,
-          title: _itemTitle(newsDetail),
-          subtitle: _itemSubTitle(newsDetail),
-        )
-    );
+      tileColor: AppColors.PRIMARY_COLOR,
+      dense: true,
+      title: _itemTitle(newsDetail),
+      subtitle: _itemSubTitle(newsDetail),
+    ));
   }
 
   Widget _itemTitle(SpecialTimingsData newsDetail) {
@@ -562,35 +630,34 @@ class AcademyDetailsScreenPageState extends State {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        SizedBox(height: 10,),
+        SizedBox(
+          height: 10,
+        ),
         Container(
             alignment: Alignment.topLeft,
-            child:Text(
+            child: Text(
               newsDetail.categories_title,
-              style: TextStyle(color: Colors.white,
-                  fontSize: 16.0),
-            )
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            )),
+        SizedBox(
+          height: 4,
         ),
-        SizedBox(height: 4,),
         Container(
             alignment: Alignment.topLeft,
-            child:Text(
+            child: Text(
               newsDetail.morning_time_start,
-              style: TextStyle(color: Colors.white,
-              fontSize: 16.0),
-            )
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            )),
+        SizedBox(
+          height: 4,
         ),
-        SizedBox(height: 4,),
         Container(
             alignment: Alignment.topLeft,
-            child:Text(
+            child: Text(
               newsDetail.working_days,
-              style: TextStyle(color: Colors.white,
-                  fontSize: 16.0),
-            )
-        )
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            ))
       ],
-
     );
   }
 
@@ -599,5 +666,4 @@ class AcademyDetailsScreenPageState extends State {
         builder: (BuildContext context) => new TimeSlotScreenPage());
     Navigator.of(context).push(route);
   }
-
 }

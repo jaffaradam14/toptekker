@@ -1,4 +1,4 @@
-class VenueModel {
+class CategoryModel {
   final String id;
   final String title;
   final String slug;
@@ -10,6 +10,6 @@ class VenueModel {
   final String Count;
   final String PCount;
 
-  VenueModel(this.id, this.title, this.slug, this.parent, this.leval,
+  CategoryModel(this.id, this.title, this.slug, this.parent, this.leval,
       this.description, this.image, this.status, this.Count, this.PCount);
 }

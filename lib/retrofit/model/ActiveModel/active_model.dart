@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/service_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/venue_model.dart';
 
 class ActiveModels{
 
@@ -7,5 +9,7 @@ class ActiveModels{
 
   ActiveModels(this.context);
 
-  late AcademyModel academyModel;
+  static BusinessModel? businessModel;
+  static CategoryModel? categoryModel;
+  static ServiceModel? serviceModel;
 }

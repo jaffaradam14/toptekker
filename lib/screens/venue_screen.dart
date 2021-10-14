@@ -6,6 +6,7 @@ import 'package:toptekker/retrofit/Apis.dart';
 import 'package:toptekker/retrofit/data/academy_data.dart';
 import 'package:toptekker/retrofit/data/venue_data.dart';
 import 'package:http/http.dart' as http;
+import 'package:toptekker/retrofit/model/ActiveModel/active_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/venue_model.dart';
 import 'package:toptekker/retrofit/services/web_service.dart';
 import 'package:toptekker/screens/academy_screen.dart';
@@ -60,7 +61,7 @@ class VenueScreenPageState extends State {
     var newsDetail = this._newsArticles[index];
     return InkWell(
         onTap: () {
-          VenueModel venue_data = new VenueModel(
+          CategoryModel venue_data = new CategoryModel(
               newsDetail.id,
               newsDetail.title,
               newsDetail.slug,
@@ -74,9 +75,11 @@ class VenueScreenPageState extends State {
           );
           print("list_tile" + venue_data.title);
 
+          ActiveModels.categoryModel = venue_data;
+
           var route = new MaterialPageRoute(
               builder: (BuildContext context) =>
-              new AcademyScreenPage(venuedata: venue_data,));
+              new AcademyScreenPage());
           Navigator.of(context).push(route);
         },
         child: Container(

@@ -15,6 +15,8 @@ class LoginData {
   final String user_type_id;
   @JsonKey(name: "is_phone_verified")
   final String is_phone_verified;
+  @JsonKey(name: "bus_id")
+  final String bus_id;
 
   late BuildContext context;
 
@@ -24,7 +26,7 @@ class LoginData {
       this.user_email,
       this.user_phone,
       this.user_type_id,
-      this.is_phone_verified);
+      this.is_phone_verified, this.bus_id);
 
   factory LoginData.fromJson(Map<String, dynamic> json){
     return LoginData(
@@ -33,7 +35,7 @@ class LoginData {
        json['user_email'] as String,
        json['user_phone'] as String,
        json['user_type_id'] as String,
-       json['is_phone_verified'] as String,
+       json['is_phone_verified'] as String,json['bus_id'] as String,
     );
   }
 }

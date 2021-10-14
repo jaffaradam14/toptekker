@@ -10,7 +10,6 @@ import 'package:toptekker/retrofit/data/login_data_model.dart';
 import 'package:toptekker/retrofit/data/validate_user_data.dart';
 import 'package:toptekker/retrofit/model/check_validate_user_model.dart';
 import 'package:toptekker/retrofit/model/login_response_model.dart';
-import 'package:toptekker/retrofit/provider/user_provider.dart';
 import 'package:toptekker/screens/bottom_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -308,7 +307,8 @@ class _LoginPageState extends State<LoginPage> {
             user.data.user_email,
             user.data.user_phone,
             user.data.user_type_id,
-            user.data.is_phone_verified);
+            user.data.is_phone_verified,
+            user.data.bus_id);
 
         print("loginData" + loginData.user_fullname);
 
@@ -320,6 +320,10 @@ class _LoginPageState extends State<LoginPage> {
         is_user_logged_in.write('user_email', user.data.user_email);
         is_user_logged_in.write('user_phone', user.data.user_phone);
         is_user_logged_in.write('user_type_id', user.data.user_type_id);
+
+        if(user.data.user_type_id == "3"){
+          is_user_logged_in.write('bus_id', user.data.bus_id);
+        }
 
         /*Provider.of<UserProvider>(context, listen: false).setUser(loginData);*/
         if (user.data.is_phone_verified == "1") {

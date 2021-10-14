@@ -2,16 +2,27 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:toptekker/retrofit/Apis.dart';
 import 'package:toptekker/retrofit/data/time_slot_morning_data.dart';
 import 'package:toptekker/retrofit/data/turf_response_data_model.dart';
 import 'package:toptekker/retrofit/data/venue_data.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/active_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/service_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/venue_model.dart';
 import 'package:toptekker/retrofit/services/web_service.dart';
 import '../AppColors.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:http/http.dart' as http;
 
 import 'contact_info_screen.dart';
+
+
+Future<void> main() async {
+  await GetStorage.init();
+  runApp(TimeSlotScreen());
+}
 
 class TimeSlotScreen extends StatelessWidget {
   @override
@@ -42,9 +53,32 @@ class TimeSlotScreenPageState extends State {
 
   final List<TimeSlotMorningData> timeslotmorningdata = [];
 
+  /*shared preference*/
+  var user_type_id;
+  var bus_id;
+  final shared_data = GetStorage();
+
+  /*ActiveModels*/
+  late CategoryModel categoryModel;
+  late BusinessModel businessModel;
+  late ServiceModel serviceModel;
+
+
   @override
   void initState() {
     super.initState();
+
+    user_type_id = shared_data.read("user_type_id");
+
+    categoryModel = ActiveModels.categoryModel!;
+    businessModel = ActiveModels.businessModel!;
+
+    if (user_type_id == "3") {
+      bus_id = shared_data.read("bus_id");
+    } else {
+      bus_id = businessModel.bus_id;
+    }
+
     getCategory();
     getTurf();
   }
@@ -52,83 +86,83 @@ class TimeSlotScreenPageState extends State {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.PRIMARY_COLOR,
-          centerTitle: false,
-          title: Text('TopTekker'),
+      appBar: AppBar(
+        backgroundColor: AppColors.PRIMARY_COLOR,
+        centerTitle: false,
+        title: Text('TopTekker'),
+      ),
+      body: Stack(children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
+          child: Column(mainAxisSize: MainAxisSize.max, children: <Widget>[
+            _buildTableCalendar(),
+            SizedBox(
+              height: 10,
+            ),
+            const Divider(
+              height: 0.1,
+              thickness: 1.2,
+              indent: 0,
+              endIndent: 0,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+                height: 60,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: this.categoryDetails.length,
+                  itemBuilder: _listViewItemBuilder,
+                )),
+            SizedBox(
+              height: 10,
+            ),
+            const Divider(
+              height: 0.1,
+              thickness: 1.2,
+              indent: 0,
+              endIndent: 0,
+            ),
+            Container(
+                child: GridView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: this.turf_response.length,
+                  itemBuilder: listTurfItemBuilder,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 1.0,
+                      childAspectRatio: 1.8),
+                )),
+            const Divider(
+              height: 0.1,
+              thickness: 1.2,
+              indent: 0,
+              endIndent: 0,
+            ),
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                child: GridView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  physics: ScrollPhysics(),
+                  itemCount: this.timeslotmorningdata.length,
+                  itemBuilder: _listViewTimeSlotItemBuilder,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 1.0,
+                      childAspectRatio: 2),
+                )),
+          ]),
         ),
-        body: Stack(children: [
-          SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-            child: Column(mainAxisSize: MainAxisSize.max, children: <Widget>[
-              _buildTableCalendar(),
-              SizedBox(
-                height: 10,
-              ),
-              const Divider(
-                height: 0.1,
-                thickness: 1.2,
-                indent: 0,
-                endIndent: 0,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  height: 60,
-                  child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                itemCount: this.categoryDetails.length,
-                itemBuilder: _listViewItemBuilder,
-              )),
-              SizedBox(
-                height: 10,
-              ),
-              const Divider(
-                height: 0.1,
-                thickness: 1.2,
-                indent: 0,
-                endIndent: 0,
-              ),
-              Container(
-                  child: GridView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: this.turf_response.length,
-                itemBuilder: listTurfItemBuilder,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 1.0,
-                    childAspectRatio: 1.8),
-              )),
-              const Divider(
-                height: 0.1,
-                thickness: 1.2,
-                indent: 0,
-                endIndent: 0,
-              ),
-              Container(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  child: GridView.builder(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    itemCount: this.timeslotmorningdata.length,
-                    itemBuilder: _listViewTimeSlotItemBuilder,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 1.0,
-                        childAspectRatio: 2),
-                  )),
-            ]),
-          ),
-        ]),
+      ]),
       floatingActionButtonLocation:
       FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: new BottomAppBar(
         child: InkWell(
-          onTap: (){
+          onTap: () {
             gotoContactPage();
           },
           child: Container(
@@ -142,15 +176,17 @@ class TimeSlotScreenPageState extends State {
                 )
             ),
             child: new Row(
-              mainAxisAlignment : MainAxisAlignment.center,
-              mainAxisSize : MainAxisSize.max,
-              crossAxisAlignment : CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
                     padding: EdgeInsets.all(6.0),
-                    child:Text("Book Now",style: TextStyle(
-                      color: Colors.white,fontSize: 18.0,fontWeight: FontWeight.bold,
-                    ) ,)
+                    child: Text("Book Now", style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),)
                 )
               ],
             ),
@@ -178,11 +214,11 @@ class TimeSlotScreenPageState extends State {
                     child: newsDetail.image == null
                         ? null
                         : Image.network(
-                            Apis.base_url +
-                                "/uploads/admin/category/" +
-                                newsDetail.image,
-                            fit: BoxFit.fitHeight,
-                          ),
+                      Apis.base_url +
+                          "/uploads/admin/category/" +
+                          newsDetail.image,
+                      fit: BoxFit.fitHeight,
+                    ),
                     height: 50,
                   ),
                   SizedBox(
@@ -203,36 +239,53 @@ class TimeSlotScreenPageState extends State {
     return InkWell(
         child: Container(
             child: ListTile(
-      contentPadding: EdgeInsets.all(13.0),
-      title: _itemTurfTitle(newsDetail),
-      onTap: () {
-        getSlotTimings();
-      },
-    )));
+              contentPadding: EdgeInsets.all(13.0),
+              title: _itemTurfTitle(newsDetail),
+              onTap: () {
+                ServiceModel serviceModel = ServiceModel(
+                    newsDetail.id,
+                    newsDetail.bus_id,
+                    newsDetail.service_title,
+                    newsDetail.service_price,
+                    newsDetail.promo_code,
+                    newsDetail.convenience_fee,
+                    newsDetail.service_discount,
+                    newsDetail.business_approxtime,
+                    newsDetail.categories,
+                    newsDetail.image);
+
+                ActiveModels.serviceModel = serviceModel;
+
+                getSlotTimings();
+              },
+            )));
   }
 
   Widget _listViewTimeSlotItemBuilder(BuildContext context, int index) {
     var newsDetail = this.timeslotmorningdata[index];
     return InkWell(
+        onTap: () {
+          print("time_slot" + newsDetail.slot);
+        },
         child: Column(
-      children: [
-        Container(
-            padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-            height: 50,
-            child: ListTile(
-              title: _itemTimeSlotThumbnail(newsDetail),
-              subtitle: _itemTimeSlotTitle(newsDetail),
-              onTap: () {},
-            ))
-      ],
-    ));
+          children: [
+            Container(
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                height: 50,
+                child: ListTile(
+                  title: _itemTimeSlotThumbnail(newsDetail),
+                  subtitle: _itemTimeSlotTitle(newsDetail),
+                  onTap: () {},
+                ))
+          ],
+        ));
   }
 
   Widget _itemTimeSlotThumbnail(TimeSlotMorningData newsDetail) {
     return Container(
         padding: const EdgeInsets.all(3.0),
         decoration:
-            BoxDecoration(border: Border.all(width: 1, color: Colors.grey)),
+        BoxDecoration(border: Border.all(width: 1, color: Colors.grey)),
         child: Text(
           newsDetail.slot_label,
           style: new TextStyle(fontSize: 11.0),
@@ -266,9 +319,9 @@ class TimeSlotScreenPageState extends State {
       child: newsDetail.image == null
           ? null
           : Image.network(
-              Apis.base_url + "/uploads/admin/category/" + newsDetail.image,
-              fit: BoxFit.fitHeight,
-            ),
+        Apis.base_url + "/uploads/admin/category/" + newsDetail.image,
+        fit: BoxFit.fitHeight,
+      ),
     );
   }
 
@@ -318,16 +371,17 @@ class TimeSlotScreenPageState extends State {
 
   void getCategory() {
     Map data = {};
-    Webservice().load(VenueData.all).then((newsArticles) => {
-          setState(() => {categoryDetails = newsArticles})
-        });
+    Webservice().load(VenueData.all).then((newsArticles) =>
+    {
+      setState(() => {categoryDetails = newsArticles})
+    });
   }
 
   Future<void> getTurf() async {
     var urls = Apis.get_services;
     Map data = {
       'cat_id': "10",
-      'bus_id': "10",
+      'bus_id': bus_id,
     };
     var response = await http.post(Uri.parse(urls),
         headers: <String, String>{}, body: data);
@@ -352,16 +406,20 @@ class TimeSlotScreenPageState extends State {
         );
         setState(() {
           turf_response.add(turfData);
+          /*serviceModel = turf_response[0] as ServiceModel;
+          ActiveModels.serviceModel = serviceModel;*/
+
         });
       });
     }
   }
 
   Future<void> getSlotTimings() async {
+    serviceModel = ActiveModels.serviceModel!;
     var urls = Apis.get_time_slot;
     Map data = {
-      'bus_id': "10",
-      'user_type_id': "2",
+      'bus_id': bus_id,
+      'user_type_id': user_type_id,
       'turf_id': "20",
       'date': "2021-9-30",
       'category': "10",

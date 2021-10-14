@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-class AcademyModel {
+class BusinessModel {
 
   final String bus_id;
   final String user_id;
@@ -32,7 +32,7 @@ class AcademyModel {
   final String fcm_topic;
 
 
-  AcademyModel(this.bus_id,
+  BusinessModel(this.bus_id,
       this.user_id,
       this.bus_title,
       this.razorpay_acc,

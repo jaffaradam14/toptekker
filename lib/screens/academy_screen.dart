@@ -7,6 +7,7 @@ import 'package:location/location.dart';
 import 'package:toptekker/retrofit/Apis.dart';
 import 'package:toptekker/retrofit/data/academy_data.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/active_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/venue_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:toptekker/screens/academy_details_screen.dart';
@@ -31,20 +32,17 @@ class AcademyScreen extends StatelessWidget {
 }
 
 class AcademyScreenPage extends StatefulWidget {
-  final VenueModel venuedata;
-
-  const AcademyScreenPage({Key? key, required this.venuedata})
-      : super(key: key);
+  const AcademyScreenPage({Key? key}) : super(key: key);
 
   @override
   AcademyScreenPageState createState() {
-    return new AcademyScreenPageState(venuedata);
+    return new AcademyScreenPageState();
   }
 }
 
 class AcademyScreenPageState extends State {
   TextEditingController searchController = TextEditingController();
-  VenueModel venueData;
+  late CategoryModel categoryModel;
   static String latitude = "0.0";
   static String longitude = "0.0";
   String sortBy = 'By Distance';
@@ -53,13 +51,13 @@ class AcademyScreenPageState extends State {
   final businessModel = GetStorage();
   List storageList = [];
 
-  AcademyScreenPageState(this.venueData) {
-    print("venue_data" + venueData.title);
-  }
-
   @override
   void initState() {
     super.initState();
+
+    categoryModel = ActiveModels.categoryModel!;
+    print("category_model" + categoryModel.description);
+
     getLocation();
     Future.delayed(Duration(seconds: 2), () {
       getAcademyDetails();
@@ -152,7 +150,7 @@ class AcademyScreenPageState extends State {
       title: _itemTitle(newsDetail),
       subtitle: _itemSubTitle(newsDetail),
       onTap: () {
-        AcademyModel academyModel = new AcademyModel(
+        BusinessModel academyModel = new BusinessModel(
             newsDetail.bus_id,
             newsDetail.user_id,
             newsDetail.bus_title,
@@ -182,6 +180,8 @@ class AcademyScreenPageState extends State {
             newsDetail.review_count,
             newsDetail.fcm_topic);
         print("list_tile" + academyModel.bus_title);
+
+        ActiveModels.businessModel = academyModel;
 
         storageList.add(academyModel);
         businessModel.write('business_model', storageList);
@@ -246,7 +246,7 @@ class AcademyScreenPageState extends State {
   void getAcademyDetails() async {
     var urls = Apis.get_business;
     Map data = {
-      'cat_id': venueData.id,
+      'cat_id': categoryModel.id,
       'search': "",
       'lat': latitude,
       'lon': longitude,
@@ -258,7 +258,7 @@ class AcademyScreenPageState extends State {
       'number_row': "10",
       'type': ""
     };
-    print("academy_data"+data.toString());
+    print("academy_data" + data.toString());
     var response = await http.post(Uri.parse(urls),
         headers: <String, String>{}, body: data);
     if (response.statusCode == 200) {
