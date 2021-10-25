@@ -27,7 +27,9 @@ dependencies:
   location: ^4.3.0
   shared_preferences:
   image_picker:
-  get_storage: 2.0.3
+  get_storage: ^2.0.3
+  google_mobile_ads:
+  platform_device_id:
   launch_review:
   url_launcher:
   share:

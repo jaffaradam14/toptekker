@@ -13,7 +13,7 @@ class TurfResponseModel{
   @JsonKey(name:"promo_code")
   final String promo_code;
   @JsonKey(name:"convenience_fee")
-  final double convenience_fee;
+  final String convenience_fee;
   @JsonKey(name:"service_discount")
   final String service_discount;
   @JsonKey(name:"business_approxtime")

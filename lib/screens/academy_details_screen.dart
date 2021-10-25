@@ -97,18 +97,12 @@ class AcademyDetailsScreenPageState extends State {
           children: [
             Container(
               height: 200,
-              child: photo_details[0].photo_image == null
-                  ? null
-                  : Image.network(
-                      Apis.base_url +
-                          "/uploads/business/businessphoto/" +
-                          photo_details[0].photo_image,
-                    ),
-              /*child: ListView.builder(
+              width: double.infinity,
+              child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: this.photo_details.length,
               itemBuilder: _listViewItemBuilder,
-            ),*/
+            ),
             ),
             Container(
               height: 50,
@@ -366,10 +360,13 @@ class AcademyDetailsScreenPageState extends State {
   Widget _listViewItemBuilder(BuildContext context, int index) {
     var newsDetail = this.photo_details[index];
     return Container(
-        child: ListTile(
-      contentPadding: EdgeInsets.all(10.0),
-      leading: _itemThumbnail(newsDetail),
-    ));
+      child: newsDetail.photo_image == null
+          ? null
+          : Image.network(
+        Apis.base_url +
+            "/uploads/business/businessphoto/" +
+            newsDetail.photo_image,
+      ),);
   }
 
   Widget _itemThumbnail(BusinessPhotosData newsDetail) {

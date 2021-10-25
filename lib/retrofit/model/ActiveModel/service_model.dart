@@ -4,7 +4,7 @@ class ServiceModel {
   final String service_title;
   final String service_price;
   final String promo_code;
-  final double convenience_fee;
+  final String convenience_fee;
   final String service_discount;
   final String business_approxtime;
   final String categories;

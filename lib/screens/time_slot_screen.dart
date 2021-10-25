@@ -16,8 +16,8 @@ import '../AppColors.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:http/http.dart' as http;
 
+import '../Util.dart';
 import 'contact_info_screen.dart';
-
 
 Future<void> main() async {
   await GetStorage.init();
@@ -50,8 +50,12 @@ class TimeSlotScreenPageState extends State {
   late List seperated;
   final List<TurfResponseModel> turf_response = [];
   List<VenueData> categoryDetails = [];
-
+  bool isSelected = false;
+  bool isSelected_1 = false;
+  bool isClicked = false;
   final List<TimeSlotMorningData> timeslotmorningdata = [];
+  final List<TimeSlotMorningData> selectedTimeSlots = [];
+  late Util util;
 
   /*shared preference*/
   var user_type_id;
@@ -62,14 +66,14 @@ class TimeSlotScreenPageState extends State {
   late CategoryModel categoryModel;
   late BusinessModel businessModel;
   late ServiceModel serviceModel;
-
+  int selectedIndex = -1;
 
   @override
   void initState() {
     super.initState();
 
     user_type_id = shared_data.read("user_type_id");
-
+    util = new Util(context);
     categoryModel = ActiveModels.categoryModel!;
     businessModel = ActiveModels.businessModel!;
 
@@ -127,15 +131,15 @@ class TimeSlotScreenPageState extends State {
             ),
             Container(
                 child: GridView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: this.turf_response.length,
-                  itemBuilder: listTurfItemBuilder,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 1.0,
-                      childAspectRatio: 1.8),
-                )),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: this.turf_response.length,
+              itemBuilder: listTurfItemBuilder,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 1.0,
+                  childAspectRatio: 1.8),
+            )),
             const Divider(
               height: 0.1,
               thickness: 1.2,
@@ -143,6 +147,8 @@ class TimeSlotScreenPageState extends State {
               endIndent: 0,
             ),
             Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1, color: Colors.grey),),
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
@@ -152,29 +158,29 @@ class TimeSlotScreenPageState extends State {
                   itemBuilder: _listViewTimeSlotItemBuilder,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      mainAxisSpacing: 1.0,
-                      childAspectRatio: 2),
+                      mainAxisSpacing: 1,
+                      childAspectRatio: 2.4),
                 )),
           ]),
         ),
       ]),
-      floatingActionButtonLocation:
-      FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: new BottomAppBar(
         child: InkWell(
           onTap: () {
-            gotoContactPage();
+            if (selectedTimeSlots.isNotEmpty) {
+              gotoContactPage();
+            } else {
+              util.showFlutterToast("Please select time slots");
+            }
           },
           child: Container(
             height: 50,
             decoration: new BoxDecoration(
-                gradient: new LinearGradient(
-                    colors: [
-                      AppColors.PRIMARY_COLOR,
-                      AppColors.PRIMARY_COLOR,
-                    ]
-                )
-            ),
+                gradient: new LinearGradient(colors: [
+              AppColors.PRIMARY_COLOR,
+              AppColors.PRIMARY_COLOR,
+            ])),
             child: new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
@@ -182,12 +188,14 @@ class TimeSlotScreenPageState extends State {
               children: [
                 Padding(
                     padding: EdgeInsets.all(6.0),
-                    child: Text("Book Now", style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),)
-                )
+                    child: Text(
+                      "Book Now",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ))
               ],
             ),
           ),
@@ -199,6 +207,24 @@ class TimeSlotScreenPageState extends State {
   Widget _listViewItemBuilder(BuildContext context, int index) {
     var newsDetail = this.categoryDetails[index];
     return InkWell(
+        onTap: () {
+          CategoryModel venue_data = new CategoryModel(
+              newsDetail.id,
+              newsDetail.title,
+              newsDetail.slug,
+              newsDetail.parent,
+              newsDetail.leval,
+              newsDetail.description,
+              newsDetail.image,
+              newsDetail.status,
+              newsDetail.Count,
+              newsDetail.PCount);
+          print("list_tile" + venue_data.title);
+
+          ActiveModels.categoryModel = venue_data;
+          categoryModel = ActiveModels.categoryModel!;
+          getTurf();
+        },
         child: Container(
             height: 10,
             child: Container(
@@ -214,11 +240,11 @@ class TimeSlotScreenPageState extends State {
                     child: newsDetail.image == null
                         ? null
                         : Image.network(
-                      Apis.base_url +
-                          "/uploads/admin/category/" +
-                          newsDetail.image,
-                      fit: BoxFit.fitHeight,
-                    ),
+                            Apis.base_url +
+                                "/uploads/admin/category/" +
+                                newsDetail.image,
+                            fit: BoxFit.fitHeight,
+                          ),
                     height: 50,
                   ),
                   SizedBox(
@@ -239,26 +265,26 @@ class TimeSlotScreenPageState extends State {
     return InkWell(
         child: Container(
             child: ListTile(
-              contentPadding: EdgeInsets.all(13.0),
-              title: _itemTurfTitle(newsDetail),
-              onTap: () {
-                ServiceModel serviceModel = ServiceModel(
-                    newsDetail.id,
-                    newsDetail.bus_id,
-                    newsDetail.service_title,
-                    newsDetail.service_price,
-                    newsDetail.promo_code,
-                    newsDetail.convenience_fee,
-                    newsDetail.service_discount,
-                    newsDetail.business_approxtime,
-                    newsDetail.categories,
-                    newsDetail.image);
+      contentPadding: EdgeInsets.all(13.0),
+      title: _itemTurfTitle(newsDetail),
+      onTap: () {
+        ServiceModel serviceModel = ServiceModel(
+            newsDetail.id,
+            newsDetail.bus_id,
+            newsDetail.service_title,
+            newsDetail.service_price,
+            newsDetail.promo_code,
+            newsDetail.convenience_fee,
+            newsDetail.service_discount,
+            newsDetail.business_approxtime,
+            newsDetail.categories,
+            newsDetail.image);
 
-                ActiveModels.serviceModel = serviceModel;
+        ActiveModels.serviceModel = serviceModel;
 
-                getSlotTimings();
-              },
-            )));
+        getSlotTimings();
+      },
+    )));
   }
 
   Widget _listViewTimeSlotItemBuilder(BuildContext context, int index) {
@@ -273,22 +299,60 @@ class TimeSlotScreenPageState extends State {
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                 height: 50,
                 child: ListTile(
-                  title: _itemTimeSlotThumbnail(newsDetail),
+                  title:
+                      _itemTimeSlotThumbnail(newsDetail, newsDetail.slot,index),
                   subtitle: _itemTimeSlotTitle(newsDetail),
-                  onTap: () {},
+                  onTap: () {
+                    setState(() {
+                      print("index---> "+newsDetail.slot);
+                      isSelected = !isSelected;
+                      selectedIndex = index;
+                      isClicked = true;
+                      print("isSelected" + isSelected.toString());
+                      if (isSelected) {
+                        selectedTimeSlots.add(TimeSlotMorningData(
+                            newsDetail.slot,
+                            newsDetail.slot_label,
+                            newsDetail.interval,
+                            newsDetail.booking_id,
+                            true,
+                            newsDetail.price,
+                            newsDetail.time_token,
+                            newsDetail.type));
+                        print("selectedTimeSlots" + selectedTimeSlots.length.toString());
+                      } else {
+                        selectedTimeSlots.remove(newsDetail);
+                        isSelected = false;
+                        isSelected_1 = false;
+                      }
+                    });
+                  },
                 ))
           ],
         ));
   }
 
-  Widget _itemTimeSlotThumbnail(TimeSlotMorningData newsDetail) {
+  Widget _itemTimeSlotThumbnail(
+      TimeSlotMorningData newsDetail, String booking_id, int index) {
+    print("send_booking_id-----> "+booking_id);
+    if(isClicked){
+      for (int i = 0; i < timeslotmorningdata.length; i++) {
+        if (booking_id == timeslotmorningdata[i].slot) {
+          print("booking_id" + booking_id);
+          isSelected_1 = true;
+        }
+      }
+    }
     return Container(
-        padding: const EdgeInsets.all(3.0),
-        decoration:
-        BoxDecoration(border: Border.all(width: 1, color: Colors.grey)),
+        padding: const EdgeInsets.all(5.0),
+        height: 25,
+        decoration: BoxDecoration(
+            border: Border.all(width: 1, color: Colors.grey),
+            color: selectedIndex == index ? Colors.green : Colors.white),
         child: Text(
           newsDetail.slot_label,
-          style: new TextStyle(fontSize: 11.0),
+          textAlign: TextAlign.center,
+          style: new TextStyle(fontSize: 11.0,),
         ));
   }
 
@@ -319,9 +383,9 @@ class TimeSlotScreenPageState extends State {
       child: newsDetail.image == null
           ? null
           : Image.network(
-        Apis.base_url + "/uploads/admin/category/" + newsDetail.image,
-        fit: BoxFit.fitHeight,
-      ),
+              Apis.base_url + "/uploads/admin/category/" + newsDetail.image,
+              fit: BoxFit.fitHeight,
+            ),
     );
   }
 
@@ -371,25 +435,25 @@ class TimeSlotScreenPageState extends State {
 
   void getCategory() {
     Map data = {};
-    Webservice().load(VenueData.all).then((newsArticles) =>
-    {
-      setState(() => {categoryDetails = newsArticles})
-    });
+    categoryDetails.clear();
+    Webservice().load(VenueData.all).then((newsArticles) => {
+          setState(() => {categoryDetails = newsArticles})
+        });
   }
 
   Future<void> getTurf() async {
     var urls = Apis.get_services;
     Map data = {
-      'cat_id': "10",
+      'cat_id': categoryModel.id,
       'bus_id': bus_id,
     };
     var response = await http.post(Uri.parse(urls),
         headers: <String, String>{}, body: data);
-
+    print("getTurf" + data.toString());
     if (response.statusCode == 200) {
       var business_photo_response = response.body;
       print("userData" + business_photo_response);
-
+      turf_response.clear();
       final Map<String, dynamic> responseData = json.decode(response.body);
       responseData['data'].forEach((turf_details) {
         final TurfResponseModel turfData = TurfResponseModel(
@@ -408,7 +472,6 @@ class TimeSlotScreenPageState extends State {
           turf_response.add(turfData);
           /*serviceModel = turf_response[0] as ServiceModel;
           ActiveModels.serviceModel = serviceModel;*/
-
         });
       });
     }
@@ -435,7 +498,7 @@ class TimeSlotScreenPageState extends State {
     if (response.statusCode == 200) {
       var userData = response.body;
       print("userData" + userData);
-
+      timeslotmorningdata.clear();
       final Map<String, dynamic> responseData = json.decode(response.body);
       responseData['data']['morning'].forEach((morningData) {
         final TimeSlotMorningData timeSlotMorningData = new TimeSlotMorningData(

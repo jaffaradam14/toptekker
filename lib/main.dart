@@ -52,11 +52,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Image(image: new AssetImage("assets/images/screen.png")),
-        ]);
+    return SingleChildScrollView(
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Image(image: new AssetImage("assets/images/screen.png")),
+          ]
+      ),);
   }
 
   Future<void> getLocation() async {
