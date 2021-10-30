@@ -10,6 +10,7 @@ import 'package:toptekker/retrofit/data/venue_data.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/active_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/service_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/slot_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/venue_model.dart';
 import 'package:toptekker/retrofit/services/web_service.dart';
 import '../AppColors.dart';
@@ -54,8 +55,9 @@ class TimeSlotScreenPageState extends State {
   bool isSelected_1 = false;
   bool isClicked = false;
   final List<TimeSlotMorningData> timeslotmorningdata = [];
-  final List<TimeSlotMorningData> selectedTimeSlots = [];
+  final List<SlotModel> selectedTimeSlots = [];
   late Util util;
+  late DateTime date;
 
   /*shared preference*/
   var user_type_id;
@@ -310,7 +312,7 @@ class TimeSlotScreenPageState extends State {
                       isClicked = true;
                       print("isSelected" + isSelected.toString());
                       if (isSelected) {
-                        selectedTimeSlots.add(TimeSlotMorningData(
+                        selectedTimeSlots.add(SlotModel(
                             newsDetail.slot,
                             newsDetail.slot_label,
                             newsDetail.interval,
@@ -416,7 +418,7 @@ class TimeSlotScreenPageState extends State {
 
   Widget _buildTableCalendar() {
     DateTime now = new DateTime.now();
-    DateTime date = new DateTime(now.year, now.month, now.day);
+    date = new DateTime(now.year, now.month, now.day);
     DateTime date2 = date.add(Duration(days: 6000, hours: 23));
     DateTime date3 = date.add(Duration(days: -2, hours: 23));
 
@@ -473,26 +475,36 @@ class TimeSlotScreenPageState extends State {
       var business_photo_response = response.body;
       print("userData" + business_photo_response);
       turf_response.clear();
+      timeslotmorningdata.clear();
       final Map<String, dynamic> responseData = json.decode(response.body);
-      responseData['data'].forEach((turf_details) {
-        final TurfResponseModel turfData = TurfResponseModel(
-          turf_details['id'],
-          turf_details['bus_id'],
-          turf_details['service_title'],
-          turf_details['service_price'],
-          turf_details['promo_code'],
-          turf_details['convenience_fee'],
-          turf_details['service_discount'],
-          turf_details['business_approxtime'],
-          turf_details['categories'],
-          turf_details['image'],
-        );
-        setState(() {
-          turf_response.add(turfData);
-          /*serviceModel = turf_response[0] as ServiceModel;
+
+      if (!responseData['data'].isEmpty) {
+        responseData['data'].forEach((turf_details) {
+          final TurfResponseModel turfData = TurfResponseModel(
+            turf_details['id'],
+            turf_details['bus_id'],
+            turf_details['service_title'],
+            turf_details['service_price'],
+            turf_details['promo_code'],
+            turf_details['convenience_fee'],
+            turf_details['service_discount'],
+            turf_details['business_approxtime'],
+            turf_details['categories'],
+            turf_details['image'],
+          );
+          setState(() {
+            turf_response.add(turfData);
+            /*serviceModel = turf_response[0] as ServiceModel;
           ActiveModels.serviceModel = serviceModel;*/
+          });
         });
-      });
+      } else {
+        util.showFlutterToast("No turf found");
+        setState(() {
+          turf_response.clear();
+          timeslotmorningdata.clear();
+        });
+      }
     }
   }
 
@@ -519,60 +531,79 @@ class TimeSlotScreenPageState extends State {
       print("userData" + userData);
       timeslotmorningdata.clear();
       final Map<String, dynamic> responseData = json.decode(response.body);
-      responseData['data']['morning'].forEach((morningData) {
-        final TimeSlotMorningData timeSlotMorningData = new TimeSlotMorningData(
-          morningData['slot'],
-          morningData['slot_label'],
-          morningData['interval'],
-          morningData['booking_id'],
-          morningData['is_booked'],
-          morningData['price'],
-          morningData['time_token'],
-          morningData['type'],
-          false,
-        );
-        setState(() {
-          timeslotmorningdata.add(timeSlotMorningData);
+
+      if (!responseData['data'].isEmpty) {
+        responseData['data']['morning'].forEach((morningData) {
+          final TimeSlotMorningData timeSlotMorningData =
+              new TimeSlotMorningData(
+            morningData['slot'],
+            morningData['slot_label'],
+            morningData['interval'],
+            morningData['booking_id'],
+            morningData['is_booked'],
+            morningData['price'],
+            morningData['time_token'],
+            morningData['type'],
+            false,
+          );
+          setState(() {
+            timeslotmorningdata.add(timeSlotMorningData);
+          });
         });
-      });
-      responseData['data']['afternoon'].forEach((morningData) {
-        final TimeSlotMorningData timeSlotMorningData = new TimeSlotMorningData(
-          morningData['slot'],
-          morningData['slot_label'],
-          morningData['interval'],
-          morningData['booking_id'],
-          morningData['is_booked'],
-          morningData['price'],
-          morningData['time_token'],
-          morningData['type'],
-          false,
-        );
-        setState(() {
-          timeslotmorningdata.add(timeSlotMorningData);
+        responseData['data']['afternoon'].forEach((morningData) {
+          final TimeSlotMorningData timeSlotMorningData =
+              new TimeSlotMorningData(
+            morningData['slot'],
+            morningData['slot_label'],
+            morningData['interval'],
+            morningData['booking_id'],
+            morningData['is_booked'],
+            morningData['price'],
+            morningData['time_token'],
+            morningData['type'],
+            false,
+          );
+          setState(() {
+            timeslotmorningdata.add(timeSlotMorningData);
+          });
         });
-      });
-      responseData['data']['evening'].forEach((morningData) {
-        final TimeSlotMorningData timeSlotMorningData = new TimeSlotMorningData(
-          morningData['slot'],
-          morningData['slot_label'],
-          morningData['interval'],
-          morningData['booking_id'],
-          morningData['is_booked'],
-          morningData['price'],
-          morningData['time_token'],
-          morningData['type'],
-          false,
-        );
-        setState(() {
-          timeslotmorningdata.add(timeSlotMorningData);
+        responseData['data']['evening'].forEach((morningData) {
+          final TimeSlotMorningData timeSlotMorningData =
+              new TimeSlotMorningData(
+            morningData['slot'],
+            morningData['slot_label'],
+            morningData['interval'],
+            morningData['booking_id'],
+            morningData['is_booked'],
+            morningData['price'],
+            morningData['time_token'],
+            morningData['type'],
+            false,
+          );
+          setState(() {
+            timeslotmorningdata.add(timeSlotMorningData);
+          });
         });
-      });
+      } else {
+        util.showFlutterToast("No time slot found");
+        setState(() {
+          timeslotmorningdata.clear();
+        });
+      }
     }
   }
 
   void gotoContactPage() {
+    ActiveModels.categoryModel = categoryModel;
+    ActiveModels.slotModel = selectedTimeSlots;
+
+    selectedDate = getDate(date);
+
     var route = new MaterialPageRoute(
-        builder: (BuildContext context) => new ContactInfoScreenPage());
+        builder: (BuildContext context) => new ContactInfoScreenPage(
+              selectedDate: selectedDate,
+              payFor: "academy",
+            ));
     Navigator.of(context).push(route);
   }
 }

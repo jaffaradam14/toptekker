@@ -21,13 +21,40 @@ class PaymentDetailsScreen extends StatelessWidget {
 }
 
 class PaymentDetailsScreenPage extends StatefulWidget {
+  late String username;
+  late String phone;
+  late String selectedDate;
+  late String payFor;
+
+  PaymentDetailsScreenPage(
+      {Key? key,
+      required this.username,
+      required this.phone,
+      required this.selectedDate,
+      required this.payFor})
+      : super(key: key);
+
   @override
   PaymentDetailsPageState createState() {
-    return new PaymentDetailsPageState();
+    return new PaymentDetailsPageState(username,phone,selectedDate,payFor);
   }
 }
 
 class PaymentDetailsPageState extends State {
+
+  late String username;
+  late String phone;
+  late String selectedDate;
+  late String payFor;
+
+  PaymentDetailsPageState(String username, String phone, String selectedDate, String payFor){
+    this.username = username;
+    this.phone = phone;
+    this.selectedDate = selectedDate;
+    this.payFor = payFor;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +63,7 @@ class PaymentDetailsPageState extends State {
         centerTitle: false,
         title: Text('Payment Details'),
       ),
-      body:Stack(
+      body: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
@@ -56,7 +83,8 @@ class PaymentDetailsPageState extends State {
                                 image: new AssetImage("assets/icons/icon.png")),
                           ),
                           Container(
-                              margin: const EdgeInsets.only(left: 6.0, right: 0.0),
+                              margin:
+                                  const EdgeInsets.only(left: 6.0, right: 0.0),
                               child: Text(
                                 'Cricket',
                                 style: TextStyle(
@@ -77,12 +105,12 @@ class PaymentDetailsPageState extends State {
                           ),
                           Container(
                               child: Text(
-                                'Cricket new',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ))
+                            'Cricket new',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ))
                         ]),
                         Row(children: [
                           Container(
@@ -96,12 +124,12 @@ class PaymentDetailsPageState extends State {
                           ),
                           Container(
                               child: Text(
-                                'Thu, 30 September 2021',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ))
+                            'Thu, 30 September 2021',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ))
                         ]),
                         Row(children: [
                           Container(
@@ -115,12 +143,12 @@ class PaymentDetailsPageState extends State {
                           ),
                           Container(
                               child: Text(
-                                '06:00 PM - 06:30 PM',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ))
+                            '06:00 PM - 06:30 PM',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ))
                         ]),
                       ],
                     ),
@@ -148,7 +176,8 @@ class PaymentDetailsPageState extends State {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                          margin: EdgeInsets.only(left: 8.0, top: 6.0, right: 0.0),
+                          margin:
+                              EdgeInsets.only(left: 8.0, top: 6.0, right: 0.0),
                           child: Text('Discount')),
                       Container(
                           margin: const EdgeInsets.only(
@@ -190,7 +219,8 @@ class PaymentDetailsPageState extends State {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                          margin: EdgeInsets.only(left: 0, top: 6.0, right: 0.0),
+                          margin:
+                              EdgeInsets.only(left: 0, top: 6.0, right: 0.0),
                           child: Text(
                             'Total Amount',
                             style: TextStyle(
@@ -199,8 +229,8 @@ class PaymentDetailsPageState extends State {
                                 fontWeight: FontWeight.bold),
                           )),
                       Container(
-                          margin:
-                          const EdgeInsets.only(left: 0, top: 6.0, right: 0),
+                          margin: const EdgeInsets.only(
+                              left: 0, top: 6.0, right: 0),
                           child: Text('1000.0 INR',
                               style: TextStyle(
                                   fontSize: 20.0,
@@ -218,8 +248,8 @@ class PaymentDetailsPageState extends State {
                           margin: EdgeInsets.only(left: 0, top: 6.0, right: 0),
                           child: Text('Advance to pay')),
                       Container(
-                          margin:
-                          const EdgeInsets.only(left: 0, top: 6.0, right: 0),
+                          margin: const EdgeInsets.only(
+                              left: 0, top: 6.0, right: 0),
                           child: Text('0.0 INR'))
                     ],
                   ),
@@ -233,8 +263,8 @@ class PaymentDetailsPageState extends State {
                           margin: EdgeInsets.only(left: 0, top: 6.0, right: 0),
                           child: Text('Convenience Fee')),
                       Container(
-                          margin:
-                          const EdgeInsets.only(left: 0, top: 6.0, right: 0),
+                          margin: const EdgeInsets.only(
+                              left: 0, top: 6.0, right: 0),
                           child: Text('0.0 INR'))
                     ],
                   ),
@@ -243,63 +273,64 @@ class PaymentDetailsPageState extends State {
                   margin: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
                   child: Card(
                       child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                  margin: EdgeInsets.only(
-                                      left: 6, top: 6, right: 6, bottom: 6),
-                                  child: Text(
-                                    '0.00 INR',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  )),
-                              Container(
-                                  margin: EdgeInsets.only(
-                                      left: 6, top: 6, right: 6, bottom: 6),
-                                  child: Text(
-                                    '1000.0 INR',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ))
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                  margin: EdgeInsets.only(
-                                      left: 6, top: 0, right: 6, bottom: 6),
-                                  child: Text(
-                                    'Advance to pay now',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.normal,
-                                        color: AppColors.PRIMARY_COLOR),
-                                  )),
-                              Container(
-                                  margin: EdgeInsets.only(
-                                      left: 6, top: 0, right: 6, bottom: 6),
-                                  child: Text(
-                                    'Amount payable at court',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.normal,
-                                        color: AppColors.PRIMARY_COLOR),
-                                  ))
-                            ],
-                          ),
+                          Container(
+                              margin: EdgeInsets.only(
+                                  left: 6, top: 6, right: 6, bottom: 6),
+                              child: Text(
+                                '0.00 INR',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              )),
+                          Container(
+                              margin: EdgeInsets.only(
+                                  left: 6, top: 6, right: 6, bottom: 6),
+                              child: Text(
+                                '1000.0 INR',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ))
                         ],
-                      )),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                              margin: EdgeInsets.only(
+                                  left: 6, top: 0, right: 6, bottom: 6),
+                              child: Text(
+                                'Advance to pay now',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                    color: AppColors.PRIMARY_COLOR),
+                              )),
+                          Container(
+                              margin: EdgeInsets.only(
+                                  left: 6, top: 0, right: 6, bottom: 6),
+                              child: Text(
+                                'Amount payable at court',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                    color: AppColors.PRIMARY_COLOR),
+                              ))
+                        ],
+                      ),
+                    ],
+                  )),
                 ),
                 Container(
                     alignment: Alignment.topLeft,
-                    margin: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
+                    margin:
+                        EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
                     child: Text(
                       'Cancellation Policy',
                       style: TextStyle(
@@ -309,7 +340,8 @@ class PaymentDetailsPageState extends State {
                     )),
                 Container(
                     alignment: Alignment.topLeft,
-                    margin: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
+                    margin:
+                        EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
                     child: Text(
                       'Cannot cancel before 36 hours',
                       style: TextStyle(
@@ -319,7 +351,8 @@ class PaymentDetailsPageState extends State {
                     )),
                 Container(
                     alignment: Alignment.topLeft,
-                    margin: EdgeInsets.only(left: 6, top: 12, right: 6, bottom: 6),
+                    margin:
+                        EdgeInsets.only(left: 6, top: 12, right: 6, bottom: 6),
                     child: Text(
                       'Terms of service',
                       style: TextStyle(
@@ -329,7 +362,8 @@ class PaymentDetailsPageState extends State {
                     )),
                 Container(
                     alignment: Alignment.topLeft,
-                    margin: EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
+                    margin:
+                        EdgeInsets.only(left: 6, top: 6, right: 6, bottom: 6),
                     child: Text(
                       'By continuing, you agree to our terms of service',
                       style: TextStyle(
@@ -342,34 +376,34 @@ class PaymentDetailsPageState extends State {
           ),
         ],
       ),
-      floatingActionButtonLocation:
-      FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: new BottomAppBar(
         child: InkWell(
-          onTap: (){
+          onTap: () {
             showConfirmationAlert(context);
           },
           child: Container(
             height: 50,
             decoration: new BoxDecoration(
-                gradient: new LinearGradient(
-                    colors: [
-                      AppColors.PRIMARY_COLOR,
-                      AppColors.PRIMARY_COLOR,
-                    ]
-                )
-            ),
+                gradient: new LinearGradient(colors: [
+              AppColors.PRIMARY_COLOR,
+              AppColors.PRIMARY_COLOR,
+            ])),
             child: new Row(
-              mainAxisAlignment : MainAxisAlignment.center,
-              mainAxisSize : MainAxisSize.max,
-              crossAxisAlignment : CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
                     padding: EdgeInsets.all(6.0),
-                    child:Text("Confirm and Book",style: TextStyle(
-                      color: Colors.white,fontSize: 18.0,fontWeight: FontWeight.bold,
-                    ) ,)
-                )
+                    child: Text(
+                      "Confirm and Book",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ))
               ],
             ),
           ),
@@ -378,7 +412,7 @@ class PaymentDetailsPageState extends State {
     );
   }
 
-  void showConfirmationAlert(BuildContext context){
+  void showConfirmationAlert(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -407,10 +441,9 @@ class PaymentDetailsPageState extends State {
     );
   }
 
-  void gotoRazorpayPage(){
+  void gotoRazorpayPage() {
     var route = new MaterialPageRoute(
         builder: (BuildContext context) => new RazorpayScreenPage());
     Navigator.of(context).push(route);
   }
-
 }

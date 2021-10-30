@@ -111,6 +111,7 @@ class AcademyDetailsScreenPageState extends State {
                         Apis.base_url +
                             "/uploads/business/businessphoto/" +
                             newsDetail.photo_image,
+                          fit:BoxFit.fill
                       ),
                     );
                   }),

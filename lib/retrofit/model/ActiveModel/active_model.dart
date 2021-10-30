@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/academy_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/service_model.dart';
+import 'package:toptekker/retrofit/model/ActiveModel/slot_model.dart';
 import 'package:toptekker/retrofit/model/ActiveModel/venue_model.dart';
 
 class ActiveModels{
@@ -12,4 +13,5 @@ class ActiveModels{
   static BusinessModel? businessModel;
   static CategoryModel? categoryModel;
   static ServiceModel? serviceModel;
+  static List<SlotModel>? slotModel;
 }
