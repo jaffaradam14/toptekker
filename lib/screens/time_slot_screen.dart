@@ -148,7 +148,8 @@ class TimeSlotScreenPageState extends State {
             ),
             Container(
                 decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: Colors.grey),),
+                  border: Border.all(width: 1, color: Colors.grey),
+                ),
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
@@ -299,12 +300,11 @@ class TimeSlotScreenPageState extends State {
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                 height: 50,
                 child: ListTile(
-                  title:
-                      _itemTimeSlotThumbnail(newsDetail, newsDetail.slot,index),
+                  title: _itemTimeSlotThumbnail(
+                      newsDetail, newsDetail.slot, index),
                   subtitle: _itemTimeSlotTitle(newsDetail),
                   onTap: () {
                     setState(() {
-                      print("index---> "+newsDetail.slot);
                       isSelected = !isSelected;
                       selectedIndex = index;
                       isClicked = true;
@@ -318,13 +318,19 @@ class TimeSlotScreenPageState extends State {
                             true,
                             newsDetail.price,
                             newsDetail.time_token,
-                            newsDetail.type));
-                        print("selectedTimeSlots" + selectedTimeSlots.length.toString());
-                      } else {
-                        selectedTimeSlots.remove(newsDetail);
-                        isSelected = false;
-                        isSelected_1 = false;
+                            newsDetail.type,
+                            true));
+                        timeslotmorningdata[index].isSelected = true;
+                        print("selectedTimeSlots----> " +
+                            selectedTimeSlots.length.toString());
+                        print("selecttimeslotindex" +
+                            timeslotmorningdata[index].isSelected.toString());
                       }
+                      /*else {
+                        selectedTimeSlots.removeAt(index);
+                        print("selectedTimeSlots----> " +
+                            selectedTimeSlots.length.toString());
+                      }*/
                     });
                   },
                 ))
@@ -334,25 +340,38 @@ class TimeSlotScreenPageState extends State {
 
   Widget _itemTimeSlotThumbnail(
       TimeSlotMorningData newsDetail, String booking_id, int index) {
-    print("send_booking_id-----> "+booking_id);
-    if(isClicked){
+    //print("index---> "+index.toString());
+    /*if(isClicked){
       for (int i = 0; i < timeslotmorningdata.length; i++) {
         if (booking_id == timeslotmorningdata[i].slot) {
           print("booking_id" + booking_id);
           isSelected_1 = true;
         }
       }
+    }*/
+
+    if (selectedTimeSlots.length > 0) {
+      if (timeslotmorningdata[index].isSelected) {
+        isSelected_1 = true;
+      } else {
+        isSelected_1 = false;
+      }
+    } else {
+      isSelected_1 = false;
     }
+
     return Container(
         padding: const EdgeInsets.all(5.0),
         height: 25,
         decoration: BoxDecoration(
             border: Border.all(width: 1, color: Colors.grey),
-            color: selectedIndex == index ? Colors.green : Colors.white),
+            color: isSelected_1 ? Colors.green : Colors.white),
         child: Text(
           newsDetail.slot_label,
           textAlign: TextAlign.center,
-          style: new TextStyle(fontSize: 11.0,),
+          style: new TextStyle(
+            fontSize: 11.0,
+          ),
         ));
   }
 
@@ -510,6 +529,7 @@ class TimeSlotScreenPageState extends State {
           morningData['price'],
           morningData['time_token'],
           morningData['type'],
+          false,
         );
         setState(() {
           timeslotmorningdata.add(timeSlotMorningData);
@@ -525,6 +545,7 @@ class TimeSlotScreenPageState extends State {
           morningData['price'],
           morningData['time_token'],
           morningData['type'],
+          false,
         );
         setState(() {
           timeslotmorningdata.add(timeSlotMorningData);
@@ -540,6 +561,7 @@ class TimeSlotScreenPageState extends State {
           morningData['price'],
           morningData['time_token'],
           morningData['type'],
+          false,
         );
         setState(() {
           timeslotmorningdata.add(timeSlotMorningData);

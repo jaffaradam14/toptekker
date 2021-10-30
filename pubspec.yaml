@@ -28,6 +28,7 @@ dependencies:
   shared_preferences:
   image_picker:
   get_storage: ^2.0.3
+  flutter_staggered_grid_view: ^0.4.1
   google_mobile_ads:
   platform_device_id:
   launch_review:

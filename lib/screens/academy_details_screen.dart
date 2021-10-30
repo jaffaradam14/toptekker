@@ -84,6 +84,8 @@ class AcademyDetailsScreenPageState extends State {
     print("storage_list" + storageList.length.toString());
   }
 
+  final PageController controller = PageController(initialPage: 0);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,11 +100,20 @@ class AcademyDetailsScreenPageState extends State {
             Container(
               height: 200,
               width: double.infinity,
-              child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: this.photo_details.length,
-              itemBuilder: _listViewItemBuilder,
-            ),
+              child: PageView.builder(
+                  itemCount: this.photo_details.length,
+                  itemBuilder: (context, index) {
+                    var newsDetail = this.photo_details[index];
+                    return Container(
+                      child: newsDetail.photo_image == null
+                          ? null
+                          : Image.network(
+                        Apis.base_url +
+                            "/uploads/business/businessphoto/" +
+                            newsDetail.photo_image,
+                      ),
+                    );
+                  }),
             ),
             Container(
               height: 50,
@@ -158,7 +169,7 @@ class AcademyDetailsScreenPageState extends State {
                     Container(
                         child: Expanded(
                             child: ListView.builder(
-                              padding: EdgeInsets.only(left: 10),
+                      padding: EdgeInsets.only(left: 10),
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
                       itemCount: this.get_sports_details_model.length,
@@ -363,10 +374,11 @@ class AcademyDetailsScreenPageState extends State {
       child: newsDetail.photo_image == null
           ? null
           : Image.network(
-        Apis.base_url +
-            "/uploads/business/businessphoto/" +
-            newsDetail.photo_image,
-      ),);
+              Apis.base_url +
+                  "/uploads/business/businessphoto/" +
+                  newsDetail.photo_image,
+            ),
+    );
   }
 
   Widget _itemThumbnail(BusinessPhotosData newsDetail) {

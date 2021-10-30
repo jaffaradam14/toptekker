@@ -19,7 +19,9 @@ class TimeSlotMorningData {
   @JsonKey(name: "type")
   final String type;
 
+  bool isSelected;
+
 
   TimeSlotMorningData(this.slot, this.slot_label, this.interval,
-      this.booking_id, this.is_booked, this.price, this.time_token, this.type);
+      this.booking_id, this.is_booked, this.price, this.time_token, this.type, this.isSelected);
 }
